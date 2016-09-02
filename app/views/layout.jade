@@ -1,0 +1,27 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/style.css')
+    
+  body
+    nav.navbar.navbar-inverse.navbar-fixed-top
+      .container
+        #navbar.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            li.active
+              a(href='/') Latest
+            li
+              a(href='/submit') Submit
+          ul.nav.navbar-nav.navbar-right
+            if (user)
+              li
+                a(href='/logout') Log out
+            else 
+              li
+                a(href='/login') Login
+    .container
+      .main-content
+        block content
+     
