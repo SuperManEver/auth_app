@@ -10,6 +10,7 @@
 function isLoggedIn(req, res, next) {
   if ( req.isAuthenticated() ) return next();
 
+  req.flash('loginMessage', 'Login please.');
   res.redirect('/');
 }
 //------------------------ END MIDDLEWARE  ---------------------
@@ -17,7 +18,7 @@ function isLoggedIn(req, res, next) {
 module.exports = function(app, passport) {
 
   app.get('/', (req, res) => {
-    res.render('index', { message : '' });
+    res.render('index', { message : req.flash('loginMessage') });
   });
 
   //------------------------ BEGIN SUBMIT SECTION ---------------------

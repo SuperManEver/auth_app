@@ -1,7 +1,27 @@
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
 body {
   padding-top : 50px;
 }
 
 .main-content {
-    padding: 40px 15px;
+  padding: 40px 15px;
+}
+
+p {
+  padding-right: 6px;
+}
+
+a {
+  display : inline-block;
+  margin-left: 6px;
 }
