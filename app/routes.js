@@ -7,7 +7,9 @@
 ------------------------------------------------------------------------------- */
 'use strict';
 
-var User = require('./models/user.js');
+var User          = require('./models/user.js');
+var run           = require('./utils/utils.js').run;
+var findOneById   = require('./utils/utils.js').findOneById
 
 //------------------------ BEGIN MIDDLEWARE  ---------------------
 function isLoggedIn(req, res, next) {
@@ -70,24 +72,27 @@ module.exports = function(app, passport) {
   //------------------------ END SIGNUP SECTION ---------------------
 
   //------------------------ BEGIN PROFILE SECTION ---------------------
-  app.get('/profile/:id', isLoggedIn, (req, res) => { 
-    var userId = req.params.id;
-    console.log(userId);
-    User.findOne({ id : userId }, (err, user) => {
-      if (err) { 
-        res.send(err);
+  function determineCurrentUser (req, res, next) {  
+    run(function* () {
+      var userId  = req.params.id;
+      // console.log(userId);
+
+      var user    = yield findOneById(userId);
+
+      // console.log(user);
+
+      if (!user) {
+        res.sendStatus(404);
         return;
       }
 
-      if (!user) { 
-        res.status(404);
-        return;
-      }
-
-      res.render('profile', { user : user });
-
+      req.session.currentUser = user;
+      next();
     });
-    // res.render('profile', { user : req.user });
+  }
+
+  app.get('/profile/:id', isLoggedIn, determineCurrentUser, (req, res) => { 
+    res.render('profile', { user : req.session.currentUser });
   });
   //------------------------ END PROFILE SECTION ---------------------
 

@@ -28,6 +28,12 @@ utils.findOne = function(email) {
   };
 };
 
+utils.findOneById = function(id) {
+  return function(cb) {
+    User.findById(id, cb);
+  };
+};
+
 utils.run = function (genFun) {
   var gen = genFun(); // create generator object
 
