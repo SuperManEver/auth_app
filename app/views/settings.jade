@@ -1,0 +1,12 @@
+extends layout
+block content
+  h2 Settings
+
+  form(action="/settings/#{user.id}" method="post")
+    .form-group
+      label(for='name') Name
+      input.form-control(name="name" type='text', placeholder='Your Name', value="#{user.name}")
+    .form-group
+      label(for='email') Email 
+      input.form-control(name="email" type='email', placeholder='Email', value="#{user.email}")
+    button.btn.btn-primary(type='submit') Update

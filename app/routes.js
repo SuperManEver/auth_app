@@ -12,17 +12,9 @@ var run           = require('./utils/utils.js').run;
 var findOneById   = require('./utils/utils.js').findOneById
 
 //------------------------ BEGIN MIDDLEWARE  ---------------------
-function isLoggedIn(req, res, next) {
-  if ( req.isAuthenticated() ) return next();
-
-  req.flash('infoMessage', 'Login please.');
-  res.redirect('/');
-}
-
-function alreadyLoggedIn(req, res, next) {
-  if (req.session.user)  res.redirect('/')
-  else return next();
-}
+var isLoggedIn              = require('./utils/middleware.js').isLoggedIn;
+var alreadyLoggedIn         = require('./utils/middleware.js').alreadyLoggedIn;
+var determineRequestedUser  = require('./utils/middleware.js').determineRequestedUser;
 //------------------------ END MIDDLEWARE  ---------------------
 
 module.exports = function(app, passport) {
@@ -72,29 +64,42 @@ module.exports = function(app, passport) {
   //------------------------ END SIGNUP SECTION ---------------------
 
   //------------------------ BEGIN PROFILE SECTION ---------------------
-  function determineCurrentUser (req, res, next) {  
-    run(function* () {
-      var userId  = req.params.id;
-      // console.log(userId);
-
-      var user    = yield findOneById(userId);
-
-      // console.log(user);
-
-      if (!user) {
-        res.sendStatus(404);
-        return;
-      }
-
-      req.session.currentUser = user;
-      next();
-    });
-  }
-
-  app.get('/profile/:id', isLoggedIn, determineCurrentUser, (req, res) => { 
+  app.get('/profile/:id', isLoggedIn, determineRequestedUser, (req, res) => { 
     res.render('profile', { user : req.session.currentUser });
   });
   //------------------------ END PROFILE SECTION ---------------------
+
+  //------------------------ BEGIN SETTINGS SECTION ---------------------
+  function isCurrentUser (req, res, next) {
+    var requestedUser = req.session.currentUser;
+    if (requestedUser.id !== req.user.id) {
+      res.redirect('/');
+      return;
+    }
+
+    next();
+  }
+
+  app.get('/settings/:id', isLoggedIn, determineRequestedUser, isCurrentUser, (req, res) => {
+    res.render('settings', { user : req.user });
+  });
+
+  app.post('/settings/:id', isLoggedIn, determineRequestedUser, isCurrentUser, (req, res) => {
+    var newName   = req.body.name;
+    var newEmail  = req.body.email;
+
+    run(function* () {
+      var user = yield findOneById(req.params.id);
+
+      user.name   = newName;
+      user.email  = newEmail;
+      user.save((err) => {
+        if (err) throw err;
+        res.redirect('/profile/' + req.user.id);
+      });
+    });
+  });
+  //------------------------ END SETTINGS SECTION ---------------------
 
   //------------------------ BEGIN LOGOUT SECTION ---------------------
 
