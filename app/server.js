@@ -12,6 +12,7 @@ var port          = process.env.PORT || 3000;
 var mongoose      = require('mongoose');
 var passport      = require('passport');
 var flash         = require('connect-flash');
+var resolve       = require('path').resolve;
 
 var morgan        = require('morgan');
 var cookieParser  = require('cookie-parser');
@@ -26,9 +27,9 @@ mongoose.connect(configDB.url);
 require('./config/passport')(passport); // pass passport for configuration
 
 // serving static assets
-app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/../node_modules/bootstrap/dist'));
-app.use(express.static(__dirname + '/../node_modules/jquery/dist'));
+app.use(express.static(resolve(__dirname, 'public')));
+app.use(express.static(resolve(__dirname, '..', 'node_modules', 'bootstrap', 'dist')));
+app.use(express.static(resolve(__dirname, '..', 'node_modules', 'jquery', 'dist')));
 
 // set up our express application
 app.use(morgan('dev'));   // log every request to the console

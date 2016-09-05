@@ -44,7 +44,7 @@ module.exports = function(app, passport) {
 
   app.post('/login', passport.authenticate('local-login', {
     successRedirect : '/',        // redirect to the secure profile section
-    failureRedirect : '/login',  // redirect back to the signup page if there is an error
+    failureRedirect : '/login',   // redirect back to the signup page if there is an error
     failureFlash    : true        // allow flash messages
   }));
 
@@ -106,6 +106,10 @@ module.exports = function(app, passport) {
   app.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/');
+  });
+
+  app.use(function (req, res) {
+    res.sendStatus(404);
   });
 
   //------------------------ END LOGOUT SECTION ---------------------
