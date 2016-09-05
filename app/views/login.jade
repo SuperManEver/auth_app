@@ -1,7 +1,7 @@
 extends layout
 block content
   h2 Login 
-  form
+  form(action="/login" method="post")
     .form-group
       label(for='email') Email address
       input.form-control(name="email" type='email', placeholder='Email')
