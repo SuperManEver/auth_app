@@ -7,9 +7,11 @@
 ------------------------------------------------------------------------------- */
 'use strict';
 
-var User          = require('./models/user.js');
-var run           = require('./utils/utils.js').run;
-var findOneById   = require('./utils/utils.js').findOneById
+var User                = require('./models/user.js');
+var Item                = require('./models/item.js');
+var run                 = require('./utils/utils.js').run;
+var findOneById         = require('./utils/utils.js').findOneById
+var retrieveAllStories  = require('./utils/utils.js').retrieveAllStories;
 
 //------------------------ BEGIN MIDDLEWARE  ---------------------
 var isLoggedIn              = require('./utils/middleware.js').isLoggedIn;
@@ -25,7 +27,15 @@ module.exports = function(app, passport) {
     next();
   }
 
-  app.get('/', specifyUser, (req, res) => {
+  function retrieveStories (req, res, next) {
+    run(function* () {
+      var items = yield retrieveAllStories();
+      app.locals.items = items;
+      next();
+    });
+  }
+
+  app.get('/', specifyUser, retrieveStories, (req, res) => {
     res.render('index', { 
       message : req.flash('infoMessage')
     });
@@ -36,13 +46,20 @@ module.exports = function(app, passport) {
     res.render('submit', { user : req.user });
   });
 
-  app.post('/submit', (req, res) => {
+  app.post('/submit', isLoggedIn, specifyUser, (req, res) => {
+    var item          = new Item();
+    item.title        = req.body.title;
+    item.url          = req.body.url;
+    item.description  = req.body.description;
 
+    item.save((err) => {
+      if (err) throw err;
+      res.redirect('/');
+    });
   });
   //------------------------ END SUBMIT SECTION ---------------------
 
   //------------------------ BEGIN LOGIN SECTION  ---------------------
-  
   app.get('/login', alreadyLoggedIn, (req, res) => {
     res.render('login');
   });

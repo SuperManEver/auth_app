@@ -7,6 +7,7 @@
 ------------------------------------------------------------------------------- */
 var fs    = require('fs');
 var User  = require('../models/user.js');
+var Item  = require('../models/item.js');
 
 var utils = {};
 
@@ -32,6 +33,12 @@ utils.findOneById = function(id) {
   return function(cb) {
     User.findById(id, cb);
   };
+};
+
+utils.retrieveAllStories = function() {
+  return function(cb) {
+    Item.find({}, cb)
+  }
 };
 
 utils.run = function (genFun) {
