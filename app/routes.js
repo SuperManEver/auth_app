@@ -19,15 +19,20 @@ var determineRequestedUser  = require('./utils/middleware.js').determineRequeste
 
 module.exports = function(app, passport) {
 
-  app.get('/', (req, res) => {
+  // middleware
+  function specifyUser (req, res, next) {
+    app.locals.user = req.user;
+    next();
+  }
+
+  app.get('/', specifyUser, (req, res) => {
     res.render('index', { 
-      message : req.flash('infoMessage'),
-      user    : req.user
-     });
+      message : req.flash('infoMessage')
+    });
   });
 
   //------------------------ BEGIN SUBMIT SECTION ---------------------
-  app.get('/submit', isLoggedIn, (req, res) => {
+  app.get('/submit', isLoggedIn, specifyUser, (req, res) => {
     res.render('submit', { user : req.user });
   });
 
@@ -80,8 +85,8 @@ module.exports = function(app, passport) {
     next();
   }
 
-  app.get('/settings/:id', isLoggedIn, determineRequestedUser, isCurrentUser, (req, res) => {
-    res.render('settings', { user : req.user });
+  app.get('/settings/:id', isLoggedIn, determineRequestedUser, isCurrentUser, specifyUser, (req, res) => {
+    res.render('settings');
   });
 
   app.post('/settings/:id', isLoggedIn, determineRequestedUser, isCurrentUser, (req, res) => {
